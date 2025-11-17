@@ -5,26 +5,30 @@ networks:
     driver: bridge
 
 services:
-  anything-llm:
+  anythingllm:
     container_name: anythingllm
     build:
-      context: ../.
+      context: .
       dockerfile: ./docker/Dockerfile
       args:
         ARG_UID: ${UID:-1000}
         ARG_GID: ${GID:-1000}
     cap_add:
       - SYS_ADMIN
+    # ------------------------------------------
+    # Persistent storage on the host
+    # (Safe & Dokploy-compatible absolute paths)
+    # ------------------------------------------
     volumes:
-      - "./.env:/app/server/.env"
-      - "../server/storage:/app/server/storage"
-      - "../collector/hotdir/:/app/collector/hotdir"
-      - "../collector/outputs/:/app/collector/outputs"
+      - "/opt/anythingllm/env:/app/server/.env"
+      - "/opt/anythingllm/server/storage:/app/server/storage"
+      - "/opt/anythingllm/collector/hotdir:/app/collector/hotdir"
+      - "/opt/anythingllm/collector/outputs:/app/collector/outputs"
     user: "${UID:-1000}:${GID:-1000}"
     ports:
       - "3001:3001"
     env_file:
-      - .env
+      - /opt/anythingllm/env
     networks:
       - anything-llm
     extra_hosts:
